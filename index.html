@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard NPS | Grupo Vilane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy-900: #070c17;
+    --navy-800: #0b1220;
+    --navy-700: #131d33;
+    --gold-500: #c9a46a;
+    --gold-400: #d9b97f;
+    --gold-600: #a8834c;
+    --bg: #f5f3ee;
+    --card: #ffffff;
+    --ink: #1a2133;
+    --muted: #5b6477;
+    --line: #e6e2d8;
+    --good: #2f7a52;
+    --good-bg: #e7f3ec;
+    --warn: #9a6a12;
+    --warn-bg: #fbf1dc;
+    --bad: #b4423a;
+    --bad-bg: #f8e6e4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: "Inter", system-ui, sans-serif; color: var(--ink); background: var(--bg); font-size: 14px; }
+  button, input, select, textarea { font: inherit; }
+  [hidden] { display: none !important; }
+
+  /* Login */
+  .login {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(201,164,106,.18), transparent 60%),
+      linear-gradient(135deg, var(--navy-700) 0%, var(--navy-800) 45%, var(--navy-900) 100%);
+  }
+  .login-card { width: 100%; max-width: 380px; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+  .login-card .logo { background: var(--navy-800); border-bottom: 3px solid var(--gold-500); display: flex; justify-content: center; }
+  .login-card .logo img { width: 220px; display: block; }
+  .login-card form { padding: 24px; }
+  .login-card h1 { font-family: "Cinzel", Georgia, serif; font-size: 19px; color: var(--navy-800); margin: 0 0 16px; text-align: center; }
+  .link-btn { background: none; border: 0; padding: 0; color: var(--gold-600); cursor: pointer; font-size: 12.5px; text-decoration: underline; }
+
+  /* Campos e botões */
+  label.f { display: block; font-weight: 500; font-size: 13px; margin: 0 0 12px; }
+  label.f span { display: block; margin-bottom: 5px; }
+  input[type=text], input[type=password], input[type=email], input[type=tel], input[type=url], select.in, textarea.in {
+    width: 100%; height: 40px; padding: 0 12px; border: 1px solid #d4d7de; border-radius: 6px; background: #fff; color: var(--ink);
+  }
+  textarea.in { height: auto; padding: 10px 12px; resize: vertical; line-height: 1.45; font-size: 13px; }
+  input:focus, select.in:focus, textarea.in:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 3px rgba(201,164,106,.25); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 36px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink); cursor: pointer; font-weight: 500; white-space: nowrap; text-decoration: none; font-size: 13px;
+  }
+  .btn:hover { border-color: var(--gold-500); }
+  .btn.primary { background: linear-gradient(135deg, var(--gold-400), var(--gold-600)); border: 0; color: var(--navy-900); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .btn.dark { background: var(--navy-800); border-color: var(--navy-800); color: var(--gold-500); font-weight: 600; }
+  .btn.sm { height: 30px; padding: 0 10px; font-size: 12.5px; }
+  .btn.danger { color: var(--bad); }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .error-text { color: var(--bad); font-size: 13px; margin-top: 10px; min-height: 1em; }
+  .help { font-size: 12.5px; color: var(--muted); line-height: 1.45; margin: 0 0 12px; }
+
+  /* Topo */
+  header.top { background: var(--navy-800); border-bottom: 3px solid var(--gold-500); }
+  .top-inner { max-width: 1200px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .top-inner .mark { height: 56px; width: 56px; overflow: hidden; border-radius: 8px; border: 1px solid #2a3550; flex: none; }
+  .top-inner .mark img { width: 200%; margin: -14% 0 0 -50%; display: block; }
+  .top-inner h1 { font-family: "Cinzel", Georgia, serif; color: var(--gold-500); font-size: 20px; margin: 0; font-weight: 600; letter-spacing: .02em; }
+  .top-inner .sub { color: #9aa3b5; font-size: 12.5px; }
+  .top-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .top-actions select.in { width: auto; height: 36px; background: var(--navy-700); color: #fff; border-color: #2a3550; }
+  .top-actions .btn.ghost { background: transparent; color: #cfd5e1; border-color: #2a3550; }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 48px; }
+
+  /* KPIs */
+  .kpis { display: grid; grid-template-columns: 1.3fr repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .kpi .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .kpi .v { font-size: 30px; font-weight: 600; margin-top: 6px; color: var(--navy-800); font-variant-numeric: tabular-nums; }
+  .kpi .s { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .kpi.main { background: var(--navy-800); border-color: var(--navy-800); }
+  .kpi.main .l { color: #9aa3b5; }
+  .kpi.main .v { color: var(--gold-500); font-size: 40px; }
+  .kpi.main .s { color: #cfd5e1; }
+  .split { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 10px; background: #2a3550; }
+  .split i { display: block; height: 100%; }
+
+  /* Seções */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 20px; }
+  .panel-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .panel-head h2 { font-size: 15px; margin: 0; font-weight: 600; }
+  .panel-head .count { color: var(--muted); font-size: 13px; }
+  .panel-head .tools { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .panel-head input[type=text] { width: 220px; height: 36px; }
+  .panel-head select.in { width: auto; height: 36px; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { padding: 11px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; background: #fbfaf7; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td .name { font-weight: 600; }
+  td .meta { color: var(--muted); font-size: 12.5px; }
+  td.actions { white-space: nowrap; text-align: right; }
+  td.actions .btn { margin-left: 4px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .empty { padding: 32px 16px; text-align: center; color: var(--muted); }
+
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .pill.ok, .pill.prom { background: var(--good-bg); color: var(--good); }
+  .pill.wait, .pill.neu { background: var(--warn-bg); color: var(--warn); }
+  .pill.det { background: var(--bad-bg); color: var(--bad); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .bars { padding: 8px 16px 16px; }
+  .row-bar { display: grid; grid-template-columns: 170px 1fr 48px; gap: 10px; align-items: center; padding: 7px 0; font-size: 13px; }
+  .row-bar .track { height: 10px; background: #efece4; border-radius: 5px; overflow: hidden; }
+  .row-bar .fill { height: 100%; background: linear-gradient(90deg, var(--gold-400), var(--gold-600)); border-radius: 5px; }
+  .row-bar .val { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .row-bar .lab { color: var(--muted); }
+  .sug { max-width: 360px; white-space: pre-wrap; font-size: 13px; }
+
+  /* Modais */
+  .modal-bg { position: fixed; inset: 0; background: rgba(7,12,23,.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+  .modal { background: #fff; border-radius: 12px; width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow: auto; padding: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  .modal.wide { max-width: 720px; }
+  .modal h3 { margin: 0 0 4px; font-family: "Cinzel", Georgia, serif; color: var(--navy-800); font-size: 18px; }
+  .modal .subtitle { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+  .modal .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal .foot { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .modal .foot .spacer { flex: 1; }
+  .modal h4 { margin: 18px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .link-box { display: flex; gap: 8px; margin-bottom: 12px; }
+  .link-box input { flex: 1; font-size: 12.5px; background: #fbfaf7; }
+  .share { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0 14px; }
+  .notice { padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; line-height: 1.45; }
+  .notice.ok { background: var(--good-bg); color: var(--good); }
+  .notice.wait { background: var(--warn-bg); color: var(--warn); }
+  .hist-item { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .hist-item .h { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .hist-item .h strong { font-size: 14px; }
+  .hist-item .h .meta { margin-left: auto; color: var(--muted); font-size: 12.5px; }
+  .hist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 14px; font-size: 13px; }
+  .hist-grid span { color: var(--muted); }
+  .hist-item .sug { max-width: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+  .result-list { margin: 8px 0 0; padding-left: 18px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  .drop-overlay {
+    position: fixed; inset: 0; z-index: 40; background: rgba(11,18,32,.82); color: var(--gold-500);
+    display: flex; align-items: center; justify-content: center; font-family: "Cinzel", Georgia, serif; font-size: 24px; text-align: center; padding: 24px;
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    background: var(--navy-800); color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 13px;
+    border-left: 3px solid var(--gold-500); box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 50; max-width: calc(100vw - 32px);
+  }
+  .loading { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--gold-500), transparent); background-size: 200% 100%; animation: load 1s linear infinite; z-index: 60; }
+  @keyframes load { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+  @media (max-width: 900px) {
+    .kpis { grid-template-columns: 1fr 1fr; }
+    .kpi.main { grid-column: 1 / -1; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .panel-head input[type=text] { width: 100%; }
+    .panel-head .tools { margin-left: 0; width: 100%; }
+    .row-bar { grid-template-columns: 110px 1fr 40px; }
+    .modal .row, .share, .hist-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="loading" id="loading" hidden></div>
+
+<!-- Login -->
+<section class="login" id="login">
+  <div class="login-card">
+    <div class="logo"><img data-logo alt="Grupo Vilane"></div>
+    <form id="login-form">
+      <h1>Dashboard NPS</h1>
+      <div id="url-field">
+        <label class="f"><span>Endereço do sistema</span><input type="url" id="api-url" placeholder="https://script.google.com/macros/s/.../exec"></label>
+        <p class="help">A "URL do app da Web" do Google Apps Script. Só precisa informar uma vez.</p>
+      </div>
+      <label class="f"><span>Senha de acesso</span><input type="password" id="pw" autocomplete="current-password" required></label>
+      <button class="btn primary" style="width:100%;height:40px" type="submit" id="login-btn">Entrar</button>
+      <div class="error-text" id="login-error"></div>
+      <div style="text-align:center" id="change-url-wrap" hidden><button type="button" class="link-btn" id="change-url">Alterar endereço do sistema</button></div>
+    </form>
+  </div>
+</section>
+
+<!-- App -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="top-inner">
+      <div class="mark"><img data-logo alt=""></div>
+      <div>
+        <h1>Dashboard NPS</h1>
+        <div class="sub">Grupo Vilane · Pesquisa de Satisfação</div>
+      </div>
+      <div class="top-actions">
+        <select class="in" id="month" aria-label="Período"></select>
+        <button class="btn ghost" id="refresh">Atualizar</button>
+        <button class="btn ghost" id="import-btn">Importar arquivo</button>
+        <a class="btn ghost" id="sheet-link" target="_blank" rel="noopener">Planilha</a>
+        <button class="btn ghost" id="settings-btn">Configurações</button>
+        <button class="btn ghost" id="logout">Sair</button>
+      </div>
+    </div>
+  </header>
+  <input type="file" id="import-input" accept=".json,application/json" multiple hidden>
+
+  <main>
+    <div class="kpis" id="kpis"></div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Clientes</h2><span class="count" id="clients-count"></span>
+        <div class="tools">
+          <input type="text" id="search" placeholder="Buscar cliente...">
+          <select class="in" id="status-filter">
+            <option value="">Todos</option>
+            <option value="pending">Sem resposta</option>
+            <option value="answered">Respondidos</option>
+          </select>
+          <button class="btn primary" id="add-client">+ Novo cliente</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="clients"></div>
+    </section>
+
+    <div class="grid2">
+      <section class="panel">
+        <div class="panel-head"><h2>Média por pergunta</h2></div>
+        <div class="bars" id="averages"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Evolução do NPS</h2></div>
+        <div class="bars" id="evolution"></div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>NPS respondidos</h2><span class="count" id="responses-count"></span>
+        <div class="tools"><button class="btn" id="export">Exportar CSV</button></div>
+      </div>
+      <div class="table-wrap" id="responses"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Cadastro / edição de cliente -->
+<div class="modal-bg" id="client-modal" hidden>
+  <form class="modal" id="client-form">
+    <h3 id="client-modal-title">Novo cliente</h3>
+    <p class="subtitle" id="client-modal-sub">Ao salvar, uma aba com o nome do cliente é criada na planilha.</p>
+    <input type="hidden" id="c-id">
+    <label class="f"><span>Nome do contato *</span><input type="text" id="c-nome" required maxlength="120"></label>
+    <label class="f"><span>Empresa</span><input type="text" id="c-empresa" maxlength="120"></label>
+    <div class="row">
+      <label class="f"><span>WhatsApp</span><input type="tel" id="c-telefone" placeholder="(11) 91234-5678" maxlength="30"></label>
+      <label class="f"><span>E-mail</span><input type="email" id="c-email" maxlength="160"></label>
+    </div>
+    <div class="error-text" id="client-error"></div>
+    <div class="foot">
+      <button type="button" class="btn danger" id="c-delete" hidden>Excluir</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button type="submit" class="btn primary" id="c-save">Salvar</button>
+    </div>
+  </form>
+</div>
+
+<!-- Formulário do cliente -->
+<div class="modal-bg" id="gen-modal" hidden>
+  <div class="modal">
+    <h3>Formulário NPS</h3>
+    <p class="subtitle" id="gen-who"></p>
+    <div class="notice" id="gen-notice"></div>
+    <div id="gen-link-wrap">
+      <h4>Link do formulário</h4>
+      <div class="link-box"><input type="text" id="gen-link" readonly><button class="btn dark" id="gen-copy-link">Copiar</button></div>
+    </div>
+    <h4>Mensagem pronta</h4>
+    <textarea class="in" id="gen-msg" rows="6" readonly></textarea>
+    <div class="share">
+      <button class="btn" id="gen-copy">Copiar mensagem</button>
+      <a class="btn" id="gen-whats" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn" id="gen-mail" target="_blank" rel="noopener">E-mail</a>
+    </div>
+    <p class="help">Prefere enviar como arquivo? <button type="button" class="link-btn" id="gen-download">Baixar o formulário (.html)</button>. As respostas dele também vão para a planilha.</p>
+    <div class="foot"><a class="btn" id="gen-sheet" target="_blank" rel="noopener">Abrir aba na planilha</a><span class="spacer"></span><button class="btn" data-close>Fechar</button></div>
+  </div>
+</div>
+
+<!-- Histórico do cliente -->
+<div class="modal-bg" id="hist-modal" hidden>
+  <div class="modal wide">
+    <h3 id="hist-title"></h3>
+    <p class="subtitle" id="hist-sub"></p>
+    <div id="hist-list"></div>
+    <div class="foot"><span class="spacer"></span><button class="btn" data-close>Fechar</button></div>
+  </div>
+</div>
+
+<!-- Configurações -->
+<div class="modal-bg" id="settings-modal" hidden>
+  <form class="modal" id="settings-form">
+    <h3>Configurações</h3>
+    <p class="subtitle">Usado quando o cliente não consegue enviar online e precisa devolver um arquivo.</p>
+    <div class="row">
+      <label class="f"><span>Seu WhatsApp</span><input type="tel" id="s-whats" placeholder="(11) 91234-5678" maxlength="30"></label>
+      <label class="f"><span>Seu e-mail</span><input type="email" id="s-email" maxlength="160"></label>
+    </div>
+    <p class="help">Valem para os links e arquivos gerados a partir de agora.</p>
+    <div class="foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button type="submit" class="btn primary">Salvar</button>
+    </div>
+  </form>
+</div>
+
+<!-- Aviso / resultado de importação -->
+<div class="modal-bg" id="info-modal" hidden>
+  <div class="modal">
+    <h3 id="info-title"></h3>
+    <div id="info-body"></div>
+    <div class="foot"><span class="spacer"></span><button class="btn primary" data-close>Ok</button></div>
+  </div>
+</div>
+
+<div class="drop-overlay" id="drop-overlay" hidden>Solte os arquivos de resposta aqui para importar</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>const LOGO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAQDAwQDAwQEAwQFBAQFBgoHBgYGBg0JCggKDw0QEA8NDw4RExgUERIXEg4PFRwVFxkZGxsbEBQdHx0aHxgaGxr/2wBDAQQFBQYFBgwHBwwaEQ8RGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhr/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD4lopPpRXecoZ+lKTSUUAFFFHWmAtH5UcUUALR+FJRQIWjNFJQAhpc0YpKQxc0fWikoAWikooAM0ufakooAKXOKSloAKKSlpgJmiiigAz7UUtJSABRRRQAtGfSkopgLRRRigBKKKKQBRRRTAM0UUUAFFFFACg0flQKKADrSUppO9ABR/npQaKAFz6UlFFIAo/z0oooAP8APSj8qMetLTAKKKKQBmiikpgGaPyoooAM/QUZ9qKWgBPyo/CijNIApaSigAozRRTAWkzRRSAX8KKKKYBSUGigBRRSCigBKXNFFIBKWjvSUALRQKKAClpKUUwCiiigQUtJRQAtJjiilPSgY36UUfSikAUUUUwA0D2oopAFHeijHpQAUUUUAFFFFABRRnNFABRmkooAWjNJRQA6jtSUUAKaSiigAFFH1ooAKKOlFABRR7UUAFFFFMAzSmkooAKKKOlIAooopgFFFFIAoo4ooAWikopgFFFFIAooooAKKKKACiiigAooooABRRRQAUUCigApc0lFMAooopAA7fWiiimAmf5UUUtIAoooFABRRRQAuPSlpKWgAooopgJiiij60CCg0UdKBhSUtJ1pAFFFFABRRRQAUUUZoAKPrSZpaACjvRmk+tABR0pc0UAFGKKKAEo/nRiloASiiloAKKMd6KACiiigAooooAKKKKYBRRRSAKKKKYBRRR9KACiiigApMUtFIBKWiigAooooAKKKKYBRRRSAKKKPpQAUUUUAFFH0opgFJS9aKQBRRRQAUUfjRQAUUdKSgBe4ooFFCAT0oo/nS0AJS0lLQAUUUUALmkoooAWlpM0ZzQAUUZozQAd6PxpKKACiig0AFFFFABRS0lAAaKM0UAFFFFAB9aSlooASlo70lAC0n1opaACjpRRQAUUUUwCiiikAUfSiigApKWigAH60UfWimAfSiiikAZoFFFABRRRTAKKKPekAUUfWigABooooAKKBRQAUcUUUAFFFFABSZpaOlAAKKSloAKKKKACiiigAoNFH0oAKP50UUAFFFFAAO1FHcUUwCjrQaKQB0o60lLQAUUUUAFFFFABRRRQAUUUUAFBoooAO1Ao+vWigAooo+lMAooopAJS0lLQAUUUUAFFFFMA60lLRikAgpaKKACiijNMAooooAKKKKQBR0pOlFAC0UUUAHtRRRTABRRRSAKKKBQAUUUUwCiiigAooopAFBpKOtAC+1FJ3paACg0UYoASij3oFAC0UlLQAlFLiigAzR+lFFABRQaXtTASiijrSAKDRRQAlFH1pc0AA60UDtRQAUlLRQAlFLSUALRRiigAozmjFFABRSUtABRRRQAZooooAKKKKACkpelFACUtJS0AHeiiimAUUUfWkAUUUUAFFFFABRRR9KACiiigAooopgFBoopAJS0UUAFGKKKACijrRQAUUUUAFFFFMAooooAKKKKADNFFHakAUUlLQAUUZooAKO9FFABSUtHWgBMUvaiigAoozRQAUUUUAFFFFMAo7UUUAFGaKKQCUUUooAB1oo70UwDNFJ9KWkACkpaQ0AFLSdaOlAC0maWigA6Uf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KYB2opR70mKQBRRRQAUUUtACUdqM8UUAFFFGKACiiigApaSigAooooAO1GaPrSUALiijrRQADrRSjrRTASlxSUtIBKKKKACjFHWigAooooAKKDRQAUe1H1oxQAUUUUALRRRQAh6UUfSigAooooAWjpxQKKAD2opKKYBRRRQAoooFHWkAmcUtJ2opgHWlopKQBRSiigBKKKKYBS0me9FIBaDQKBQAg6Uveij60AFFJj1pcUwEpaSgUALSUUUAKKBSUvekAdqOtGaKAEooopgFLRSUALmigUlIAooooABQaX60lABRRRQAUYoFFABRRRQAUGiimAdKMUUUgCiiigAHWigdRRTAKKKKQBR/OiigAopelJ9aYBRS/rSUgCl60lBpgFFFFIA+tFFFAC0mKUcUmaACiiigAo+tFFAC0lLRigBKKKKACgiiigBaSlzig0wEooo9qQC/yooNJQAooxRR/OgAooooATtS0YoFABzRQaKACjvR9KKYBRRR+lABSfSlopAJQKP5UCgBe9H1oooAKSlpKACiiloATpS0hooAKKKKYBRRRSAKKKKACiiigAoooxQAUUUtABikpR9aKAEooooAWkoooAB1FFA60UwCjtSUtIAooooAKKKKADNL9aSjGaAACil+lBoASiiigAooopgFApetJ9KQBRRRTAKKKKACiiikAUd6KKACiiimAUUUuKQCUUUtABSUtGM0AJS0nbmlH0oAO1FFFABRS9RxSUAFFH0ooAM4ooooAWkozR3oAKKPWimAUUUZ7mkAUUUUAFFJRQAUUUUAFFGKPrQAUUUfSgBaKQUtACUtGKKAEo7e1LR3oAKSlxSdKADpSikooAOlFFFMAooopAH1oozR3oAO4oo70UwEpe1JS0gCiiigAooooAKWkzS0AFIaKKAD6Uc0tFACUUtJ0oAUUfSkpaACkoopgFFFFIAooooAKKKKYBS0UUgCg0UUAFFBooAOlHajNFMAoo70UAFH1pD0ooAWij+dFIAoyKKSgBaKKKACkpaKACjtSUCgBaKOaSmAuaKSigBetJRRSAKKKOlABRRRQAUpopKYBRn8qKKQCiiiigApO9LRQAUGikoAKKX6UlABS4pPpRQAUCiimAA0UUtIBO4opR1opiEIooooGFFFFAC0lFFAB+FFFFABS0UUAGKKKKACkoooAMUUUUAGKWiigBMUYoooAMUuKKKAExRRRQAtL+FFFACEUYoooAP50lFFACgUDpRRQAYoxxRRQAUmDRRQAUtFFAB9KMGiigAwaDRRQAY56UYoooEH0oFFFAwxSdKKKACjmiigApe9FFACEUYoooAKKKKACiiigA60uPzoooEGPWiiigYGiiigAo5oooATBooooAWkoooAMUUUUALSUUUAKOtFFFAH/9k=";</script>
+
+<!-- Modelo do formulário do cliente (HTML completo e independente) -->
+<script type="text/x-template" id="form-tpl"><!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pesquisa de Satisfação | Grupo Vilane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --navy-900:#070c17; --navy-800:#0b1220; --navy-700:#131d33; --gold-500:#c9a46a; --gold-400:#d9b97f; --gold-600:#a8834c; --ink:#1a2133; --muted:#5b6477; --card:#fff; --error:#b4423a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; font-family: "Inter", system-ui, sans-serif; color: var(--ink);
+    background: radial-gradient(1200px 600px at 85% -10%, rgba(201,164,106,.18), transparent 60%),
+      linear-gradient(135deg, var(--navy-700) 0%, var(--navy-800) 45%, var(--navy-900) 100%);
+    background-attachment: fixed; display: flex; align-items: center; justify-content: center; padding: 32px 16px;
+  }
+  [hidden] { display: none !important; }
+  .wrap { width: 100%; max-width: 960px; display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  .brand { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.35); position: sticky; top: 32px; }
+  .brand-logo { background: var(--navy-800); display: flex; justify-content: center; border-bottom: 3px solid var(--gold-500); }
+  .brand-logo img { width: 100%; max-width: 300px; display: block; }
+  .brand-info { padding: 24px 28px 28px; }
+  .brand-info h1 { font-family: "Cinzel", Georgia, serif; font-weight: 600; font-size: 22px; line-height: 1.3; margin: 0 0 12px; color: var(--navy-800); }
+  .brand-info p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .brand-info .who { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ece8df; font-size: 14px; }
+  .brand-info .who strong { color: var(--navy-800); }
+  .form-card { background: var(--card); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.35); padding: 32px 32px 24px; }
+  .q { margin-bottom: 26px; }
+  .q label.title { display: block; font-weight: 600; font-size: 15.5px; line-height: 1.45; margin-bottom: 4px; }
+  .q .req { color: var(--gold-600); }
+  .q .hint { font-size: 13px; color: var(--muted); line-height: 1.45; margin: 0 0 10px; }
+  .select-wrap { position: relative; }
+  .select-wrap::after { content: ""; position: absolute; right: 18px; top: 50%; width: 8px; height: 8px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+  select, textarea { width: 100%; font: inherit; font-size: 14.5px; color: var(--ink); background: #fff; border: 1px solid #d4d7de; border-radius: 6px; transition: border-color .15s, box-shadow .15s; }
+  select { appearance: none; -webkit-appearance: none; height: 44px; padding: 0 40px 0 12px; cursor: pointer; }
+  select.placeholder { color: #8a909c; }
+  select option { color: var(--ink); }
+  textarea { min-height: 80px; padding: 12px; resize: vertical; }
+  select:focus, textarea:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 3px rgba(201,164,106,.25); }
+  .q.has-error select { border-color: var(--error); }
+  .err { display: none; color: var(--error); font-size: 12.5px; margin-top: 6px; }
+  .q.has-error .err { display: block; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 22px; border-radius: 6px; border: 1px solid #d4d7de; background: #fff; color: var(--ink); font: inherit; font-weight: 600; font-size: 14.5px; cursor: pointer; text-decoration: none; }
+  .btn.primary { background: linear-gradient(135deg, var(--gold-400), var(--gold-600)); border: 0; color: var(--navy-900); letter-spacing: .02em; }
+  .btn:hover { filter: brightness(1.05); }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .footnote { margin-top: 18px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .message { text-align: center; padding: 24px 8px; }
+  .message .mark { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; background: var(--navy-800); color: var(--gold-500); font-size: 30px; }
+  .message h2 { font-family: "Cinzel", Georgia, serif; color: var(--navy-800); margin: 0 0 10px; }
+  .message p { color: var(--muted); margin: 0 0 12px; line-height: 1.6; }
+  .message .file { display: inline-block; background: #f4f1ea; border: 1px dashed var(--gold-500); border-radius: 8px; padding: 8px 14px; color: var(--navy-800); font-weight: 600; font-size: 13.5px; margin: 4px 0 16px; word-break: break-all; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 6px; }
+  @media (max-width: 760px) {
+    .wrap { grid-template-columns: 1fr; }
+    .brand { position: static; }
+    .brand-logo img { max-width: 220px; }
+    .form-card { padding: 24px 20px 20px; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <aside class="brand">
+    <div class="brand-logo"><img src="__LOGO__" alt="Grupo Vilane"></div>
+    <div class="brand-info">
+      <h1>[Grupo Vilane] Pesquisa de Satisfação</h1>
+      <p>Pesquisa de Satisfação Grupo Vilane</p>
+      <p class="who" id="who"></p>
+    </div>
+  </aside>
+  <section class="form-card">
+    <form id="nps" novalidate></form>
+
+    <div class="message" id="msg-thanks" hidden>
+      <div class="mark">✓</div>
+      <h2>Obrigado!</h2>
+      <p>Sua resposta foi enviada com sucesso.<br>Sua opinião é essencial para continuarmos evoluindo.</p>
+    </div>
+    <div class="message" id="msg-answered" hidden>
+      <div class="mark">✓</div>
+      <h2>Pesquisa já respondida</h2>
+      <p>Você já respondeu a pesquisa deste mês. Obrigado!<br>No próximo mês, uma nova pesquisa estará disponível neste mesmo link.</p>
+    </div>
+    <div class="message" id="msg-invalid" hidden>
+      <div class="mark">!</div>
+      <h2>Link indisponível</h2>
+      <p>Este link de pesquisa não é válido.<br>Entre em contato com a equipe do Grupo Vilane.</p>
+    </div>
+    <div class="message" id="msg-file" hidden>
+      <div class="mark">✓</div>
+      <h2>Quase lá!</h2>
+      <p id="file-reason"></p>
+      <div class="file" id="file-name"></div>
+      <p><strong>Envie esse arquivo de volta para o Grupo Vilane.</strong><br>Ele foi baixado no seu aparelho (veja a pasta "Downloads").</p>
+      <div class="actions">
+        <button class="btn primary" id="btn-share" hidden>Compartilhar arquivo</button>
+        <a class="btn" id="btn-whats" target="_blank" rel="noopener" hidden>Abrir WhatsApp</a>
+        <a class="btn" id="btn-mail" target="_blank" rel="noopener" hidden>Abrir e-mail</a>
+        <button class="btn" id="btn-again">Baixar novamente</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const DATA = __DATA__;
+  const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  const nowMonth = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); };
+  const MES = DATA.mes || nowMonth();
+  const monthText = ym => { const [y, m] = ym.split("-"); return MESES[Number(m) - 1] + " de " + y; };
+
+  const HINT_5 = "Escolha uma das opções, sendo 5 a avaliação mais positiva e 1 a mais negativa.";
+  const HINT_5_NA = HINT_5 + ' Caso não se aplique ao seu projeto, escolha a opção "Não se aplica".';
+  const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
+
+  const QUESTIONS = [
+    { id: "nps", required: true, type: "select", options: range(1, 10),
+      title: "De 1 a 10, o quanto você recomendaria o Grupo Vilane para outros empresários hoje?",
+      hint: "Sendo 10 o maior valor (recomendação mais positiva) e 1 o menor valor (recomendação mais negativa)." },
+    { id: "atendimento", required: true, type: "select", options: range(1, 5),
+      title: "De 1 a 5, como você classifica o atendimento da equipe que te atende?", hint: HINT_5 },
+    { id: "campanhas", type: "select", options: [...range(1, 5), "Não se aplica"],
+      title: "De 1 a 5, como você classifica o resultado da sua gestão de campanhas/anúncios patrocinados?", hint: HINT_5_NA },
+    { id: "prazo", type: "select", options: range(1, 5),
+      title: "De 1 a 5, as entregas estão sendo dentro do prazo?", hint: HINT_5 },
+    { id: "resultados", type: "select", options: range(1, 5),
+      title: "De 1 a 5, como você classifica a entrega de resultados?", hint: HINT_5 },
+    { id: "copys", type: "select", options: [...range(1, 5), "Não se aplica"],
+      title: "De 1 a 5, como você classifica os textos/copys entregues?", hint: HINT_5_NA },
+    { id: "designs", type: "select", options: [...range(1, 5), "Não se aplica"],
+      title: "De 1 a 5, como você classifica as artes/designs entregues?", hint: HINT_5_NA },
+    { id: "desapontamento", required: true, type: "select",
+      options: ["Muito desapontado", "Um pouco desapontado", "Nada desapontado"],
+      title: "Se, por algum motivo, o Grupo Vilane parasse de te atender hoje, o quão desapontado você ficaria?",
+      hint: 'Onde "Muito desapontado" é a avaliação mais positiva (você ficaria muito desapontado pois entende que o Grupo Vilane é essencial para você), e "Nada desapontado" é a avaliação mais negativa (se o Grupo Vilane parasse de te atender hoje isso não faria nenhuma diferença para você).' },
+    { id: "sugestao", type: "textarea",
+      title: "O que o Grupo Vilane poderia fazer para ser melhor pra você?",
+      hint: "Escreva abaixo para que possamos entender o que poderia ser melhor para você e sua empresa, e garantir sempre a entrega do melhor serviço aos nossos clientes. Se precisar fazer o uso de aspas (\" \"), por favor, use as aspas simples (' ')." },
+  ];
+
+  const $ = id => document.getElementById(id);
+  const form = $("nps");
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const slug = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "cliente";
+  const SCREENS = ["msg-thanks", "msg-answered", "msg-invalid", "msg-file"];
+  function showScreen(id) {
+    form.hidden = true;
+    SCREENS.forEach(s => $(s).hidden = s !== id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  $("who").innerHTML = `Olá, <strong>${esc(DATA.nome)}</strong>${DATA.empresa ? " · " + esc(DATA.empresa) : ""}<br>Pesquisa de ${monthText(MES)}`;
+
+  form.innerHTML = QUESTIONS.map(q => {
+    const title = `<label class="title" for="${q.id}">${q.required ? '<span class="req">* </span>' : ""}${esc(q.title)}</label>`;
+    const hint = `<p class="hint">${esc(q.hint)}</p>`;
+    const field = q.type === "textarea"
+      ? `<textarea id="${q.id}" name="${q.id}" placeholder="Digite aqui ..." maxlength="3000"></textarea>`
+      : `<div class="select-wrap"><select id="${q.id}" name="${q.id}" class="placeholder">
+           <option value="">Escolha uma opção</option>
+           ${q.options.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}
+         </select></div>`;
+    return `<div class="q" data-q="${q.id}">${title}${hint}${field}<div class="err">Esta pergunta é obrigatória.</div></div>`;
+  }).join("") + `
+    <button type="submit" class="btn primary" id="btn-send">Enviar</button>
+    <p class="footnote">Suas respostas são confidenciais e utilizadas exclusivamente para melhorar nossos serviços.</p>`;
+
+  form.querySelectorAll("select").forEach(s => s.addEventListener("change", () => {
+    s.classList.toggle("placeholder", !s.value);
+    s.closest(".q").classList.remove("has-error");
+  }));
+
+  // Fala com a planilha (Google Apps Script). Corpo em texto simples evita bloqueio de CORS.
+  async function post(body, ms) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), ms || 25000);
+    try {
+      const res = await fetch(DATA.api, { method: "POST", body: JSON.stringify(body), signal: ctrl.signal });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      return json.result || {};
+    } finally { clearTimeout(t); }
+  }
+
+  // Se já respondeu neste mês, avisa antes de preencher.
+  if (DATA.api) {
+    post({ action: "status", cid: DATA.cid, mes: MES }, 15000).then(r => {
+      if (r.valid === false) showScreen("msg-invalid");
+      else if (r.answered) showScreen("msg-answered");
+    }).catch(() => {});
+  }
+
+  let file = null;
+  function download() {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(file);
+    a.download = file.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+
+  // Plano B: se o envio online falhar, as respostas vão para um arquivo que o cliente devolve.
+  function fallbackToFile(payload) {
+    const name = `NPS-${slug(DATA.empresa || DATA.nome)}-${MES}.json`;
+    file = new File([JSON.stringify(payload, null, 2)], name, { type: "application/json" });
+    $("file-name").textContent = name;
+    $("file-reason").textContent = DATA.api
+      ? "Não foi possível enviar sua resposta agora (verifique sua conexão). Ela foi salva neste arquivo:"
+      : "Suas respostas foram salvas neste arquivo:";
+    showScreen("msg-file");
+    download();
+    const text = `Olá! Segue o arquivo com a minha resposta da pesquisa de satisfação do Grupo Vilane (${monthText(MES)}).`;
+    if (DATA.whats) { const w = $("btn-whats"); w.href = "https://wa.me/" + DATA.whats + "?text=" + encodeURIComponent(text); w.hidden = false; }
+    if (DATA.email) { const m = $("btn-mail"); m.href = "mailto:" + encodeURIComponent(DATA.email) + "?subject=" + encodeURIComponent("Resposta da pesquisa de satisfação") + "&body=" + encodeURIComponent(text); m.hidden = false; }
+    try { if (navigator.canShare && navigator.canShare({ files: [file] })) $("btn-share").hidden = false; } catch (_) {}
+  }
+  $("btn-again").addEventListener("click", () => file && download());
+  $("btn-share").addEventListener("click", async () => {
+    try { await navigator.share({ files: [file], title: "Resposta da pesquisa de satisfação" }); } catch (_) {}
+  });
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    let firstError = null;
+    QUESTIONS.filter(q => q.required).forEach(q => {
+      const el = form.elements[q.id];
+      const bad = !el.value;
+      el.closest(".q").classList.toggle("has-error", bad);
+      if (bad && !firstError) firstError = el;
+    });
+    if (firstError) { firstError.focus(); firstError.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+
+    const respostas = {};
+    QUESTIONS.forEach(q => respostas[q.id] = form.elements[q.id].value.trim());
+    const enviado_em = new Date().toISOString();
+    const payload = { tipo: "vilane-nps-resposta", versao: 1, cliente: { id: DATA.cid, nome: DATA.nome, empresa: DATA.empresa }, mes: MES, enviado_em, respostas };
+
+    if (!DATA.api) { fallbackToFile(payload); return; }
+    const btn = $("btn-send");
+    btn.disabled = true; btn.textContent = "Enviando...";
+    try {
+      const r = await post({ action: "submit", cid: DATA.cid, mes: MES, enviado_em, respostas });
+      if (r.ok) { showScreen("msg-thanks"); return; }
+      if (r.reason === "answered") { showScreen("msg-answered"); return; }
+      if (r.reason === "invalid") { showScreen("msg-invalid"); return; }
+      throw new Error("resposta inesperada");
+    } catch (_) {
+      btn.disabled = false; btn.textContent = "Enviar";
+      fallbackToFile(payload);
+    }
+  });
+<\/script>
+</body>
+</html>
+</script>
+
+<!-- Link do formulário: abrir o index.html com ?f=... mostra o formulário do cliente no lugar do dashboard -->
+<script>
+  const b64urlEncode = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const b64urlDecode = t => new TextDecoder().decode(Uint8Array.from(atob(t.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0)));
+
+  function renderFormHtml(data) {
+    const tpl = document.getElementById("form-tpl").textContent.split("<\\/script>").join("</scr" + "ipt>");
+    const json = JSON.stringify(data).replace(/</g, "\\u003c");
+    return tpl.replace("__LOGO__", () => LOGO).replace("__DATA__", () => json);
+  }
+
+  // Só envia respostas para o Google Apps Script (ou localhost, para testes).
+  const API_ALLOWED = /^https:\/\/script\.google\.com\/|^http:\/\/localhost[:\/]/;
+
+  window.__FORM_MODE = new URLSearchParams(location.search).has("f");
+  if (window.__FORM_MODE) {
+    document.documentElement.style.visibility = "hidden";
+    window.addEventListener("load", () => {
+      let d = null;
+      try { d = JSON.parse(b64urlDecode(new URLSearchParams(location.search).get("f"))); } catch (_) {}
+      const valid = d && typeof d.cid === "string" && d.cid && typeof d.nome === "string";
+      const html = valid
+        ? renderFormHtml({
+            cid: d.cid.slice(0, 64), nome: d.nome.slice(0, 120), empresa: String(d.empresa || "").slice(0, 120),
+            api: API_ALLOWED.test(d.api || "") ? d.api : "", whats: String(d.whats || "").replace(/\D/g, "").slice(0, 20),
+            email: String(d.email || "").slice(0, 160),
+          })
+        : '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="font-family:sans-serif;padding:32px"><h2>Link inválido</h2><p>Peça um novo link ao Grupo Vilane.</p></body>';
+      document.open(); document.write(html); document.close();
+    });
+  }
+</script>
+
+<script>
+(function () {
+  if (window.__FORM_MODE) return;
+
+  document.querySelectorAll("[data-logo]").forEach(i => i.src = LOGO);
+
+  const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  const QUESTION_LABELS = [
+    ["atendimento", "Atendimento"], ["campanhas", "Campanhas/anúncios"], ["prazo", "Entregas no prazo"],
+    ["resultados", "Entrega de resultados"], ["copys", "Textos/copys"], ["designs", "Artes/designs"],
+  ];
+  const ALL = "all";
+
+  let apiUrl = "";
+  let password = "";
+  let data = { clients: [], responses: [], sheetUrl: "" };
+  let selectedMonth = "";
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const cap = s => s.replace(/^./, c => c.toUpperCase());
+  const monthLabel = ym => { const [y, m] = ym.split("-"); return cap(MESES[Number(m) - 1]) + " " + y; };
+  const monthText = ym => monthLabel(ym).toLowerCase().replace(" ", " de ");
+  const currentMonth = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); };
+  const fmtDate = iso => { const d = new Date(iso); return isNaN(d) ? String(iso) : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }); };
+  const catClass = r => r.categoria_nps === "Promotor" ? "prom" : r.categoria_nps === "Neutro" ? "neu" : "det";
+  const slug = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "cliente";
+  const digitsOf = tel => { let d = String(tel || "").replace(/\D/g, ""); if (d.length === 10 || d.length === 11) d = "55" + d; return d; };
+  const store = {
+    get: (k, s = localStorage) => { try { return s.getItem(k); } catch (_) { return null; } },
+    set: (k, v, s = localStorage) => { try { s.setItem(k, v); } catch (_) {} },
+    del: (k, s = localStorage) => { try { s.removeItem(k); } catch (_) {} },
+  };
+  const settings = () => { try { return JSON.parse(store.get("vilane_settings") || "{}"); } catch (_) { return {}; } };
+
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toast.timer); toast.timer = setTimeout(() => t.hidden = true, 3000);
+  }
+  function downloadBlob(blob, name) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+
+  // Fala com o Google Apps Script. Corpo em texto simples evita bloqueio de CORS.
+  async function call(action, payload) {
+    $("loading").hidden = false;
+    try {
+      const res = await fetch(apiUrl, { method: "POST", body: JSON.stringify({ action, password, ...(payload || {}) }) });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      return json.result;
+    } finally {
+      $("loading").hidden = true;
+    }
+  }
+
+  /* ---------- Login ---------- */
+
+  function setupLogin() {
+    apiUrl = store.get("vilane_api_url") || "";
+    $("url-field").hidden = !!apiUrl;
+    $("change-url-wrap").hidden = !apiUrl;
+    $("api-url").value = apiUrl;
+  }
+  setupLogin();
+  $("change-url").addEventListener("click", () => { $("url-field").hidden = false; $("change-url-wrap").hidden = true; $("api-url").focus(); });
+
+  $("login-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const url = $("api-url").value.trim();
+    if (!/^https?:\/\//.test(url)) { $("login-error").textContent = "Informe o endereço do sistema."; $("url-field").hidden = false; return; }
+    apiUrl = url;
+    login($("pw").value);
+  });
+  $("logout").addEventListener("click", () => {
+    password = "";
+    store.del("vilane_pw", sessionStorage);
+    $("app").hidden = true; $("login").hidden = false; $("pw").value = "";
+    setupLogin();
+  });
+
+  async function login(pw) {
+    password = pw;
+    $("login-error").textContent = "";
+    $("login-btn").disabled = true;
+    try {
+      setData(await call("load"));
+      store.set("vilane_api_url", apiUrl);
+      store.set("vilane_pw", pw, sessionStorage);
+      $("login").hidden = true; $("app").hidden = false;
+    } catch (err) {
+      password = "";
+      const badPw = /senha/i.test(err.message);
+      $("login-error").textContent = badPw ? "Senha incorreta." : "Não foi possível conectar. Confira o endereço do sistema e sua internet.";
+      if (!badPw) $("url-field").hidden = false;
+    } finally {
+      $("login-btn").disabled = false;
+    }
+  }
+  { const saved = store.get("vilane_pw", sessionStorage); if (saved && apiUrl) login(saved); }
+
+  /* ---------- Dados ---------- */
+
+  function setData(d) {
+    data = d;
+    const cur = currentMonth();
+    const months = [...new Set([cur, ...d.responses.map(r => r.mes)])].sort().reverse();
+    if (!selectedMonth || (selectedMonth !== ALL && !months.includes(selectedMonth))) selectedMonth = cur;
+    $("month").innerHTML = `<option value="${ALL}">Todos os meses</option>` +
+      months.map(m => `<option value="${m}">${monthLabel(m)}${m === cur ? " (atual)" : ""}</option>`).join("");
+    $("month").value = selectedMonth;
+    $("sheet-link").href = d.sheetUrl;
+    render();
+  }
+  $("month").addEventListener("change", e => { selectedMonth = e.target.value; render(); });
+  $("refresh").addEventListener("click", async () => {
+    try { setData(await call("load")); toast("Dados atualizados"); } catch (err) { toast("Erro: " + err.message); }
+  });
+  $("search").addEventListener("input", renderClients);
+  $("status-filter").addEventListener("change", renderClients);
+
+  const periodRows = () => selectedMonth === ALL ? data.responses : data.responses.filter(r => r.mes === selectedMonth);
+  const periodLabel = () => selectedMonth === ALL ? "todos os meses" : monthLabel(selectedMonth);
+
+  function npsOf(rows) {
+    if (!rows.length) return null;
+    const p = rows.filter(r => r.categoria_nps === "Promotor").length;
+    const d = rows.filter(r => r.categoria_nps === "Detrator").length;
+    return Math.round((p - d) / rows.length * 100);
+  }
+  function npsZone(n) {
+    if (n == null) return "Sem respostas";
+    if (n >= 75) return "Zona de excelência";
+    if (n >= 50) return "Zona de qualidade";
+    if (n >= 0) return "Zona de aperfeiçoamento";
+    return "Zona crítica";
+  }
+
+  /* ---------- Renderização ---------- */
+
+  function render() { renderKpis(); renderClients(); renderAverages(); renderEvolution(); renderResponses(); }
+
+  function renderKpis() {
+    const rows = periodRows();
+    const nps = npsOf(rows);
+    const prom = rows.filter(r => r.categoria_nps === "Promotor").length;
+    const neu = rows.filter(r => r.categoria_nps === "Neutro").length;
+    const det = rows.filter(r => r.categoria_nps === "Detrator").length;
+    const total = data.clients.length;
+    const pct = (n, t) => t ? Math.round(n / t * 100) + "%" : "–";
+    const muito = rows.filter(r => r.desapontamento === "Muito desapontado").length;
+    const who = new Set(rows.map(r => r.cliente_id)).size;
+    const respSub = selectedMonth === ALL ? `${who} clientes diferentes` : `${total ? pct(who, total) : "–"} de ${total} clientes`;
+    $("kpis").innerHTML = `
+      <div class="kpi main">
+        <div class="l">NPS · ${esc(periodLabel())}</div>
+        <div class="v num">${nps == null ? "–" : nps}</div>
+        <div class="s">${npsZone(nps)}</div>
+        ${rows.length ? `<div class="split" title="Promotores / Neutros / Detratores">
+          <i style="width:${prom / rows.length * 100}%;background:#4f9d72"></i>
+          <i style="width:${neu / rows.length * 100}%;background:#d9b97f"></i>
+          <i style="width:${det / rows.length * 100}%;background:#c9574e"></i></div>` : ""}
+      </div>
+      <div class="kpi"><div class="l">Respostas</div><div class="v num">${rows.length}</div><div class="s">${respSub}</div></div>
+      <div class="kpi"><div class="l">Promotores</div><div class="v num">${prom}</div><div class="s">${pct(prom, rows.length)} · notas 9–10</div></div>
+      <div class="kpi"><div class="l">Detratores</div><div class="v num">${det}</div><div class="s">${pct(det, rows.length)} · notas 1–6</div></div>
+      <div class="kpi"><div class="l">Muito desapontados</div><div class="v num">${pct(muito, rows.length)}</div><div class="s">se o Grupo Vilane parasse</div></div>`;
+  }
+
+  function renderClients() {
+    const rows = periodRows();
+    const q = $("search").value.trim().toLowerCase();
+    const filter = $("status-filter").value;
+    const list = data.clients
+      .filter(c => !q || (c.nome + " " + c.empresa + " " + c.email + " " + c.telefone).toLowerCase().includes(q))
+      .filter(c => !filter || (filter === "answered") === rows.some(r => r.cliente_id === c.id))
+      .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+
+    $("clients-count").textContent = data.clients.length ? `${data.clients.length} cadastrado${data.clients.length > 1 ? "s" : ""}` : "";
+    if (!data.clients.length) {
+      $("clients").innerHTML = `<div class="empty">Nenhum cliente cadastrado ainda. Clique em <strong>+ Novo cliente</strong> para começar.</div>`;
+      return;
+    }
+    if (!list.length) { $("clients").innerHTML = `<div class="empty">Nenhum cliente encontrado.</div>`; return; }
+
+    const all = selectedMonth === ALL;
+    $("clients").innerHTML = `<table><thead><tr>
+        <th>Cliente</th><th>Contato</th><th>${all ? "Respostas" : esc(monthLabel(selectedMonth))}</th><th>${all ? "Última nota" : "Nota"}</th><th></th>
+      </tr></thead><tbody>${list.map(c => {
+        const mine = rows.filter(r => r.cliente_id === c.id).sort((a, b) => b.data_envio.localeCompare(a.data_envio));
+        const last = mine[0];
+        const status = all ? `<span class="num">${mine.length}</span>`
+          : last ? `<span class="pill ok">Respondido</span>` : `<span class="pill wait">Pendente</span>`;
+        const nota = last ? `<span class="pill ${catClass(last)}">${esc(last.nps)}</span>` : "–";
+        return `<tr>
+          <td><div class="name">${esc(c.nome)}</div><div class="meta">${esc(c.empresa)}</div></td>
+          <td><div>${esc(c.telefone) || "–"}</div><div class="meta">${esc(c.email)}</div></td>
+          <td>${status}</td>
+          <td class="num">${nota}</td>
+          <td class="actions">
+            <button class="btn sm primary" data-act="gen" data-id="${esc(c.id)}">Gerar formulário</button>
+            <button class="btn sm" data-act="hist" data-id="${esc(c.id)}">Histórico</button>
+            <button class="btn sm" data-act="edit" data-id="${esc(c.id)}">Editar</button>
+          </td></tr>`;
+      }).join("")}</tbody></table>`;
+  }
+  $("clients").addEventListener("click", e => {
+    const b = e.target.closest("button[data-act]");
+    if (!b) return;
+    const c = data.clients.find(x => x.id === b.dataset.id);
+    if (!c) return;
+    if (b.dataset.act === "gen") openGenerate(c);
+    if (b.dataset.act === "hist") openHistory(c);
+    if (b.dataset.act === "edit") openClientModal(c);
+  });
+
+  function renderAverages() {
+    const rows = periodRows();
+    if (!rows.length) { $("averages").innerHTML = `<div class="empty">Sem respostas em ${esc(periodLabel())}.</div>`; return; }
+    $("averages").innerHTML = QUESTION_LABELS.map(([k, label]) => {
+      const vals = rows.map(r => Number(r[k])).filter(v => v >= 1 && v <= 5);
+      const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+      return `<div class="row-bar"><span class="lab">${label}</span>
+        <div class="track"><div class="fill" style="width:${avg ? avg / 5 * 100 : 0}%"></div></div>
+        <span class="val">${avg ? avg.toFixed(1).replace(".", ",") : "–"}</span></div>`;
+    }).join("");
+  }
+
+  function renderEvolution() {
+    const byMonth = {};
+    data.responses.forEach(r => (byMonth[r.mes] = byMonth[r.mes] || []).push(r));
+    const months = Object.keys(byMonth).sort().slice(-12);
+    if (!months.length) { $("evolution").innerHTML = `<div class="empty">O histórico aparece depois das primeiras respostas.</div>`; return; }
+    $("evolution").innerHTML = months.map(m => {
+      const n = npsOf(byMonth[m]);
+      return `<div class="row-bar"><span class="lab">${monthLabel(m)} · ${byMonth[m].length} resp.</span>
+        <div class="track"><div class="fill" style="width:${(n + 100) / 2}%"></div></div>
+        <span class="val">${n}</span></div>`;
+    }).join("");
+  }
+
+  const short = v => v === "Não se aplica" ? "N/A" : (esc(v) || "–");
+
+  function renderResponses() {
+    const rows = periodRows().slice().sort((a, b) => b.data_envio.localeCompare(a.data_envio));
+    $("responses-count").textContent = `${rows.length} em ${periodLabel()}`;
+    if (!rows.length) { $("responses").innerHTML = `<div class="empty">Nenhuma resposta em ${esc(periodLabel())}.</div>`; return; }
+    $("responses").innerHTML = `<table><thead><tr>
+      <th>Cliente</th><th>Data</th><th>NPS</th><th>Atend.</th><th>Camp.</th><th>Prazo</th><th>Result.</th><th>Copys</th><th>Designs</th><th>Desapontamento</th><th>Sugestão</th>
+    </tr></thead><tbody>${rows.map(r => `<tr>
+        <td><div class="name">${esc(r.cliente_nome)}</div><div class="meta">${esc(r.empresa)}${selectedMonth === ALL ? " · " + esc(monthLabel(r.mes)) : ""}</div></td>
+        <td class="meta">${esc(fmtDate(r.data_envio))}</td>
+        <td><span class="pill ${catClass(r)}">${esc(r.nps)}</span></td>
+        <td class="num">${short(r.atendimento)}</td><td class="num">${short(r.campanhas)}</td><td class="num">${short(r.prazo)}</td>
+        <td class="num">${short(r.resultados)}</td><td class="num">${short(r.copys)}</td><td class="num">${short(r.designs)}</td>
+        <td>${esc(r.desapontamento)}</td>
+        <td><div class="sug">${esc(r.sugestao) || '<span class="meta">–</span>'}</div></td></tr>`).join("")}</tbody></table>`;
+  }
+
+  $("export").addEventListener("click", () => {
+    const cols = [["cliente_nome", "Cliente"], ["empresa", "Empresa"], ["mes", "Mês"], ["data_envio", "Data"], ["nps", "NPS (1-10)"],
+      ["categoria_nps", "Categoria"], ...QUESTION_LABELS, ["desapontamento", "Desapontamento"], ["sugestao", "Sugestão"]];
+    const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [cols.map(c => q(c[1])).join(";"),
+      ...periodRows().map(r => cols.map(([k]) => q(k === "data_envio" ? fmtDate(r[k]) : r[k])).join(";"))].join("\r\n");
+    downloadBlob(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }), `nps-grupo-vilane-${selectedMonth === ALL ? "todos" : selectedMonth}.csv`);
+  });
+
+  /* ---------- Modais ---------- */
+
+  const openModal = id => { $(id).hidden = false; };
+  const closeModals = () => document.querySelectorAll(".modal-bg").forEach(m => m.hidden = true);
+  document.querySelectorAll(".modal-bg").forEach(m => m.addEventListener("click", e => {
+    if (e.target === m || e.target.closest("[data-close]")) closeModals();
+  }));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModals(); });
+  function showInfo(title, html) { $("info-title").textContent = title; $("info-body").innerHTML = html; closeModals(); openModal("info-modal"); }
+
+  /* Cadastro / edição de cliente */
+  let editing = null;
+  $("add-client").addEventListener("click", () => openClientModal(null));
+
+  function openClientModal(c) {
+    editing = c;
+    $("client-modal-title").textContent = c ? "Editar cliente" : "Novo cliente";
+    $("client-modal-sub").textContent = c ? "Se mudar o nome da empresa, a aba na planilha também é renomeada." : "Ao salvar, uma aba com o nome do cliente é criada na planilha.";
+    $("c-id").value = c ? c.id : "";
+    $("c-nome").value = c ? c.nome : "";
+    $("c-empresa").value = c ? c.empresa : "";
+    $("c-telefone").value = c ? c.telefone : "";
+    $("c-email").value = c ? c.email : "";
+    $("c-delete").hidden = !c;
+    $("client-error").textContent = "";
+    openModal("client-modal");
+    $("c-nome").focus();
+  }
+
+  $("client-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const client = {
+      id: $("c-id").value, nome: $("c-nome").value.trim(), empresa: $("c-empresa").value.trim(),
+      telefone: $("c-telefone").value.trim(), email: $("c-email").value.trim(),
+    };
+    if (!client.nome) { $("client-error").textContent = "Informe o nome do contato."; return; }
+    $("c-save").disabled = true; $("c-save").textContent = "Salvando...";
+    try {
+      const res = await call("saveClient", { client });
+      setData(res);
+      closeModals();
+      if (client.id) { toast("Cliente atualizado"); return; }
+      toast("Cliente cadastrado e aba criada na planilha");
+      const created = data.clients.find(c => c.id === res.createdId);
+      if (created) openGenerate(created);
+    } catch (err) {
+      $("client-error").textContent = err.message || "Erro ao salvar.";
+    } finally {
+      $("c-save").disabled = false; $("c-save").textContent = "Salvar";
+    }
+  });
+
+  $("c-delete").addEventListener("click", async () => {
+    const c = editing; if (!c) return;
+    if (!confirm(`Excluir ${c.nome}? O link dele deixa de funcionar. A aba e as respostas continuam na planilha.`)) return;
+    try { setData(await call("deleteClient", { id: c.id })); closeModals(); toast("Cliente excluído"); }
+    catch (err) { $("client-error").textContent = err.message; }
+  });
+
+  /* ---------- Formulário do cliente ---------- */
+
+  const hosted = () => /^https?:$/.test(location.protocol);
+  const formData = c => ({
+    cid: c.id, nome: c.nome, empresa: c.empresa, api: apiUrl,
+    whats: digitsOf(settings().retorno_whats), email: settings().retorno_email || "",
+  });
+  const formLink = c => location.origin + location.pathname + "?f=" + b64urlEncode(JSON.stringify(formData(c)));
+
+  let genClient = null;
+  function openGenerate(c) {
+    genClient = c;
+    const cur = currentMonth();
+    const answered = data.responses.some(r => r.cliente_id === c.id && r.mes === cur);
+    $("gen-who").textContent = c.nome + (c.empresa ? " · " + c.empresa : "");
+    const n = $("gen-notice");
+    if (answered) { n.className = "notice ok"; n.textContent = `Já respondeu a pesquisa de ${monthText(cur)}. O mesmo link libera uma nova pesquisa no mês seguinte.`; }
+    else { n.className = "notice wait"; n.textContent = `Formulário de ${monthText(cur)} liberado. O cliente responde uma vez por mês e a resposta vai direto para a aba dele na planilha.`; }
+
+    const link = hosted() ? formLink(c) : "";
+    $("gen-link-wrap").hidden = !link;
+    $("gen-link").value = link;
+    const mes = monthText(cur);
+    const msg = link
+      ? `Olá, ${c.nome}! Tudo bem?\n\nSua opinião é muito importante para o Grupo Vilane. Poderia responder nossa pesquisa de satisfação de ${mes}? Leva menos de 2 minutos:\n\n${link}\n\nObrigado!`
+      : `Olá, ${c.nome}! Tudo bem?\n\nSua opinião é muito importante para o Grupo Vilane. Estou enviando em anexo o arquivo da nossa pesquisa de satisfação de ${mes}. É só abrir no navegador, responder (menos de 2 minutos) e clicar em Enviar.\n\nObrigado!`;
+    $("gen-msg").value = msg;
+    const d = digitsOf(c.telefone);
+    $("gen-whats").hidden = !d;
+    $("gen-whats").href = "https://wa.me/" + d + "?text=" + encodeURIComponent(msg);
+    $("gen-mail").hidden = !c.email;
+    $("gen-mail").href = "mailto:" + encodeURIComponent(c.email) + "?subject=" + encodeURIComponent("Pesquisa de Satisfação | Grupo Vilane") + "&body=" + encodeURIComponent(msg);
+    $("gen-sheet").hidden = !c.aba_url;
+    $("gen-sheet").href = c.aba_url || "#";
+    openModal("gen-modal");
+  }
+  async function copy(text, okMsg, field) {
+    try { await navigator.clipboard.writeText(text); } catch (_) { field.select(); document.execCommand("copy"); }
+    toast(okMsg);
+  }
+  $("gen-copy-link").addEventListener("click", () => copy($("gen-link").value, "Link copiado", $("gen-link")));
+  $("gen-copy").addEventListener("click", () => copy($("gen-msg").value, "Mensagem copiada", $("gen-msg")));
+  $("gen-download").addEventListener("click", () => {
+    const c = genClient;
+    downloadBlob(new Blob([renderFormHtml(formData(c))], { type: "text/html;charset=utf-8" }), `Pesquisa-NPS-${slug(c.empresa || c.nome)}.html`);
+    toast("Arquivo baixado. Anexe-o na mensagem ao cliente.");
+  });
+
+  /* ---------- Importar arquivos de resposta (plano B) ---------- */
+
+  async function importFiles(fileList) {
+    const files = [...fileList];
+    if (!files.length) return;
+    const items = [], bad = [];
+    for (const f of files) {
+      if (f.size > 300000) { bad.push(`${f.name}: arquivo grande demais`); continue; }
+      let o;
+      try { o = JSON.parse(await f.text()); }
+      catch (_) { bad.push(/\.html?$/i.test(f.name) ? `${f.name}: este é o formulário. Peça o arquivo de resposta (.json) ao cliente` : `${f.name}: arquivo inválido`); continue; }
+      if (!o || o.tipo !== "vilane-nps-resposta" || !o.cliente || typeof o.cliente.id !== "string") { bad.push(`${f.name}: não é um arquivo de resposta da pesquisa`); continue; }
+      items.push({ cid: o.cliente.id, mes: o.mes, enviado_em: o.enviado_em, respostas: o.respostas, _name: f.name });
+    }
+    let results = [];
+    if (items.length) {
+      try {
+        const res = await call("importResponses", { items: items.map(({ _name, ...rest }) => rest) });
+        results = res.results;
+        const okMonths = results.map((r, i) => r.status === "ok" ? items[i].mes : null).filter(Boolean).sort();
+        if (okMonths.length) selectedMonth = okMonths.pop();
+        setData(res);
+      } catch (err) { bad.push("Não foi possível enviar para a planilha: " + err.message); }
+    }
+    const lines = { ok: [], answered: [], invalid: [], invalida: [] };
+    results.forEach((r, i) => (lines[r.status] || lines.invalida).push(`${r.nome || items[i]._name} · ${/^\d{4}-\d{2}$/.test(r.mes) ? monthLabel(r.mes) : "?"}`));
+    const list = (title, arr) => arr.length ? `<p style="margin:12px 0 0"><strong>${title}</strong></p><ul class="result-list">${arr.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
+    const problems = bad.concat(lines.invalid.map(x => x + " (cliente não cadastrado)"), lines.invalida.map(x => x + " (resposta inválida)"));
+    showInfo(lines.ok.length ? "Respostas importadas" : "Nada foi importado",
+      `<p class="subtitle">${lines.ok.length} nova${lines.ok.length === 1 ? "" : "s"} · ${lines.answered.length} já existente${lines.answered.length === 1 ? "" : "s"} · ${problems.length} com problema</p>` +
+      list("Importadas para a planilha", lines.ok) + list("Já estavam na planilha (ignoradas)", lines.answered) + list("Não foi possível importar", problems));
+  }
+  $("import-btn").addEventListener("click", () => $("import-input").click());
+  $("import-input").addEventListener("change", e => { importFiles(e.target.files); e.target.value = ""; });
+
+  let dragDepth = 0;
+  const hasFiles = e => e.dataTransfer && [...e.dataTransfer.types].includes("Files");
+  window.addEventListener("dragenter", e => { if (hasFiles(e) && !$("app").hidden) { dragDepth++; $("drop-overlay").hidden = false; } });
+  window.addEventListener("dragleave", e => { if (hasFiles(e) && --dragDepth <= 0) { dragDepth = 0; $("drop-overlay").hidden = true; } });
+  window.addEventListener("dragover", e => { if (hasFiles(e)) e.preventDefault(); });
+  window.addEventListener("drop", e => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); dragDepth = 0; $("drop-overlay").hidden = true;
+    if (!$("app").hidden) importFiles(e.dataTransfer.files);
+  });
+
+  /* ---------- Histórico ---------- */
+
+  function openHistory(c) {
+    const mine = data.responses.filter(r => r.cliente_id === c.id).sort((a, b) => b.mes.localeCompare(a.mes));
+    $("hist-title").textContent = c.nome;
+    $("hist-sub").textContent = (c.empresa ? c.empresa + " · " : "") +
+      (mine.length ? `${mine.length} resposta${mine.length > 1 ? "s" : ""} · NPS do cliente ${npsOf(mine)}` : "Nenhuma resposta ainda");
+    $("hist-list").innerHTML = mine.length ? mine.map(r => `
+      <div class="hist-item">
+        <div class="h"><strong>${esc(monthLabel(r.mes))}</strong><span class="pill ${catClass(r)}">NPS ${esc(r.nps)}</span><span class="meta">${esc(fmtDate(r.data_envio))}</span></div>
+        <div class="hist-grid">
+          ${QUESTION_LABELS.map(([k, l]) => `<div><span>${l}:</span> <strong>${short(r[k])}</strong></div>`).join("")}
+          <div style="grid-column:1/-1"><span>Se parássemos:</span> <strong>${esc(r.desapontamento)}</strong></div>
+        </div>
+        ${r.sugestao ? `<div class="sug">${esc(r.sugestao)}</div>` : ""}
+      </div>`).join("") : `<div class="empty">Use "Gerar formulário" para enviar a primeira pesquisa.</div>`;
+    openModal("hist-modal");
+  }
+
+  /* ---------- Configurações ---------- */
+
+  $("settings-btn").addEventListener("click", () => {
+    $("s-whats").value = settings().retorno_whats || "";
+    $("s-email").value = settings().retorno_email || "";
+    openModal("settings-modal");
+  });
+  $("settings-form").addEventListener("submit", e => {
+    e.preventDefault();
+    store.set("vilane_settings", JSON.stringify({ retorno_whats: $("s-whats").value.trim(), retorno_email: $("s-email").value.trim() }));
+    closeModals(); toast("Configurações salvas");
+  });
+})();
+</script>
+</body>
+</html>
